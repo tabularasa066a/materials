@@ -1,2 +1,12 @@
 # ignore files/directries below
 password集.md
+
+materials_BTTC/着任メモ.md
+materials_BTTC/ver_up業務/**
+materials_BTTC/モブプロ/**
+
+materials_OpenT/着任メモ.md
+materials_OpenT/加盟店管理システム.md
+materials_OpenT/IntegrationTest.md
+materials_OpenT/スペルミス修正タスク.md
+materials_OpenT/WeeklyMTG/**
