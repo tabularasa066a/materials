@@ -45,6 +45,10 @@
   - `git pull`
 5. 元々クローンしていたものを編集するときは最新版がリモートに反映されている可能性があるため`git pull`すること。
 6. git add 時はファイルを絞る
+7. ローカルでディレクトリ構造を変えたがgit hub上で認識されないとき
+   - `git rm --cached [directory名]`で一旦そのディレクトリを削除
+   - `git add [directory名]`で再度add
+   - `git commit`, `git push`
 
 (参考)
 [Qiita記事](https://qiita.com/leon-joel/items/a1ebe76f21c76e862b9b)
