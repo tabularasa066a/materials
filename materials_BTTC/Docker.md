@@ -13,7 +13,7 @@
     ![コンテナ起動のイメージ](images/コンテナ起動のイメージ.png)
 
 3. Dockerで何ができるか
-   - ホストOS(win)の内部に独立したアプリケーション環境の実行環境＝コンテナを生成することができる
+   - ホストOS(win)の内部に独立したアプリケーションの実行環境＝コンテナを生成することができる
    - リソース消費量が少なく1台の物理サーバに多くのコンテナを稼働させられる
 
 4. 仮想サーバ(VM)との違い
@@ -72,14 +72,58 @@
 2. `docker-compose up -d --build`でビルドと立ち上げを行う
 3. `winpty docker-compose exec web //bin/bash`としてコンテナに入る
     - `systemctl start memcached`
-    - `cd /opt/enju-flower`
+    - `cd /opt/enju-flower`(NDLサーチの場合)
+    - `cd /opt/enju-management`(NDLサーチ管理の場合)
     - `bundle update`
     - `bundle install --path vendor/bundle`
     - `bundle exec rails s -p 3000 -b '0.0.0.0'`(ciscoつないでから)
+    - `psql -h db -U catalog`
 4. `psql -U postgres -d postgres`にてポスグレ
+    - `\d`でテーブル一覧
+    - `\x`で表示モード成形
    (pass: qfgdg233)
    [postgresqlの環境構築](https://qiita.com/wb773/items/c2fd0e1e0349a41b5844)
    - `\q`でログアウト
 5. 検索クエリ等を`cookies`に保存させたい時は
    - `http://localhost.ndl.go.jp:3000/`環境にて検証すること
    - `C:\Windows\System32\drivers\etc`の`hosts`にホストを追記すること
+
+6. databaseのdumpを行いたいとき
+ https://github.com/laradock/laradock/issues/919
+
+ 下記はdocker-compose.ymlからの抜粋
+```yml
+   db:
+    image: postgres:9
+    container_name: db
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: catalog
+      PGDATA: /tmp
+```
+
+>## DBとsolrをAWSインスタンスとした場合の接続手順
+1. DBとsolrにssh接続するために、teratermマクロ(.ttl)を叩く
+    - `C:\Program Files (x86)\teraterm\ttpmacro.exe`を実行
+    - desktopにある`PortForward2pgsql.ttl`と`PortForward2solr.ttl`へ接続する
+    - passphraseの代替として`.pem`ファイルを用いる:
+      `C:\Users\tomohiko.miura\Desktop\pem\iss-mig.pem`
+    - teraterm ターミナルを起動したままにしておく
+2. dockerコンテナに入り、railsサーバを立ち上げる
+    - git bashを立ち上げ目的のプロジェクトで`cd docker`
+    - `docker-compose up -d --build`でビルドと立ち上げを行う
+    - `winpty docker-compose exec web //bin/bash`としてコンテナに入る
+      - `systemctl start memcached`
+      - `cd /opt/enju-flower`(NDLサーチの場合)
+      - `cd /opt/enju-management`(NDLサーチ管理の場合)
+      - `bundle update`
+      - `bundle install --path vendor/bundle`
+      - `bundle exec rails s -p 3000 -b '0.0.0.0'`(ciscoつないでから)
+
+## その他
+1. `A server is already running.`と出たら
+   - docker killする

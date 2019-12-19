@@ -39,3 +39,6 @@
 >## 諸概念について
 1. lambda式
    - def 定義をワンライナーで書けるようになる(継承しないようなメソッドの場合)
+
+2. DBコンソールへのアクセス(`config/database.yml`を基にアクセス)
+   - `bunndle exec rails dbconsole`

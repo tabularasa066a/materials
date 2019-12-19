@@ -49,10 +49,15 @@
    - `git rm --cached [directory名]`で一旦そのディレクトリを削除
    - `git add [directory名]`で再度add
    - `git commit`, `git push`
+8. リモートでローカルを上書きしたいとき
+   - `git fetch origin develop`: リモートの最新版をとってくる
+   - `git reset --hard origin/develop`: ローカルのdevelopをリモート追跡のdevelopに強制的に合わせる
 
 (参考)
 [Qiita記事](https://qiita.com/leon-joel/items/a1ebe76f21c76e862b9b)
 - トラブったらこれ
+
+[戻す系のコマンド](https://qiita.com/rch1223/items/9377446c3d010d91399b)
 
 >## 初期設定と意識すること
 1. commiterとauthorの設定
