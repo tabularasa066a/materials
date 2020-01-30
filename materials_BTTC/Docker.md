@@ -127,3 +127,6 @@
 ## その他
 1. `A server is already running.`と出たら
    - docker killする
+2. docker compose ファイルがある場合
+   `winpty docker exec -i -t [コンテナID] bash`
+   でコンテナ内に入ることができる。

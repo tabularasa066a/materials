@@ -1,5 +1,64 @@
 # タスク集
 
+>## サーチフロント：ユーザ編集時バリデーションエラー起きる問題
+```
+E80000000
+``
+
+でログインすること。
+
+ndl_application_helper.rbのprevious_or_registeredメソッドにて@attr[key]の方を返している
+
+
+```
+ID: E50000215
+Pass: ndlndlndl1
+```
+- `http://localhost.ndl.go.jp:3000/`から行うこと
+- ciscoつなぐこと
+
+>## サーチフロント：利用者情報更新文字列
+1. `http://localhost.ndl.go.jp:3000/`
+   ```
+    ID：E50003071
+    PW：ndl12345
+   ```
+2. `config/environments/develop.rb`の`APPLICATION_HOSTS`を
+   `APPLICATION_HOSTS = "ndl.go.jp"`とすること
+
+3. app/helpers/ndl_application_helper.rbを修正すること。
+
+>## サーチフロント：ndl_initializer設定解放
+1. 右ペイン
+   - 関連キーワード
+   - 著者名キーワード(`author_keyword`)
+   - 書評
+
+2. `require 'enju_ndl/mobile/mobile_paginate_link_renderer'`コメントイン時エラーが発生
+  - `Rack` gem
+    - Rubyでwebサーバを立ち上げるためのインターフェィス
+    - `config.ru`の設定必要？
+
+>## 子どもOPAC: showのnextPageクリックで不適切な書誌詳細に行く問題
+1. 「おはなしのろうそく」で検索
+2. 一覧　-> 書誌詳細ページ
+   - params[:list].split(";) = 
+     [
+     "http://localhost:3000/children/show/R100000002-I029329080-00", "http://localhost:3000/children/show/R100000001-`I073123229-00"--これがダメ`, "http://localhost:3000/children/show/R100000001-I061098835-00", ]
+3. いちらんにもどる -> おはなしのろうそく31
+   - params[:list].split(";) =
+     ["http://localhost:3000/children/show/R100000002-I029329080-00", "http://localhost:3000/children/show/R100000002-`I024405670-00"--これが正しい`, "http://localhost:3000/children/show/R100000002-I000008926999-00", "http://localhost:3000/children/show/R100000002-I000007942070-00", "http://localhost:3000/children/show/R100000002-I000002865106-00"]
+
+4. 検索時のparams
+5. [:list]取得に問題あり
+6. `app/views/children/show.html.erb`, l.17~
+7. `app/controllers/children_controller.rb`, L.308~
+
+- translated_params
+[debug f]{:any=>"▒▒▒͂Ȃ▒▒̂낤▒▒▒▒", :sort=>"ud", :ar=>"4e1f"}
+[debug j]{:sort=>"ud", :ar=>"4e1f", :any=>"▒▒▒͂Ȃ▒▒̂낤▒▒▒▒", :collection_code=>"(JIKAI OR JIBET OR JIHEI)"}
+
+
 >## `unable to convert unpermitted parameters to hash`
 1. 子どもページから検索かけたときに出るエラー
 2. ストロングパラメタ仕様なのに送信がpermitされていない状態で`.to_hash`を用いてハッシュ化しているために出るエラー
@@ -142,190 +201,6 @@ sher_sm:北海道^500) [:repository_no_sm]:R100000049) OR digitized_publisher_sm
 
 4. devise依存の箇所多いため活用する方針で考える？(`current_user`はdeviseのhelper method)
 
-```log
-Started GET "/" for 172.18.0.1 at 2019-11-25 09:21:09 +0000
-Processing by Admin::NdlLibrariesController#index as HTML
-### UUUUUU HTTP_X_FORWARDED_FOR= , LOGIN_SYSTEM=  UUUUUU
-Redirected to http://localhost:3000/accounts/sign_in
-Completed 302 Found in 575ms (ActiveRecord: 25.9ms)
-
-
-172.18.0.1 - - [25/Nov/2019:09:21:09 UTC] "GET / HTTP/1.1" 302 104
-- -> /
-Started GET "/accounts/sign_in" for 172.18.0.1 at 2019-11-25 09:21:10 +0000
-Processing by Devise::SessionsController#new as HTML
-### UUUUUU HTTP_X_FORWARDED_FOR= , LOGIN_SYSTEM=  UUUUUU
-  Rendering devise/sessions/new.html.erb within layouts/application
-  Rendered devise/shared/_links.erb (1.2ms)
-  Rendered devise/sessions/new.html.erb within layouts/application (122.0ms)
-DEPRECATION WARNING: The asset "all.css" is not present in the asset pipeline.Fa
-lling back to an asset that may be in the public folder.
-This behavior is deprecated and will be removed.
-To bypass the asset pipeline and preserve this behavior,
-use the `skip_pipeline: true` option.
- (called from _app_views_layouts_application_html_erb__1786439654330897897_27883
-420 at /opt/enju-management/app/views/layouts/application.html.erb:6)
-DEPRECATION WARNING: The asset "smoothness/jquery-ui-1.8.7.custom.css" is not pr
-esent in the asset pipeline.Falling back to an asset that may be in the public f
-older.
-This behavior is deprecated and will be removed.
-To bypass the asset pipeline and preserve this behavior,
-use the `skip_pipeline: true` option.
- (called from _app_views_layouts_application_html_erb__1786439654330897897_27883
-420 at /opt/enju-management/app/views/layouts/application.html.erb:7)
-DEPRECATION WARNING: The asset "smoothness/fg.menu.css" is not present in the as
-set pipeline.Falling back to an asset that may be in the public folder.
-This behavior is deprecated and will be removed.
-To bypass the asset pipeline and preserve this behavior,
-use the `skip_pipeline: true` option.
- (called from _app_views_layouts_application_html_erb__1786439654330897897_27883
-420 at /opt/enju-management/app/views/layouts/application.html.erb:7)
-DEPRECATION WARNING: The asset "smoothness/fg.menu.button.css" is not present in
- the asset pipeline.Falling back to an asset that may be in the public folder.
-This behavior is deprecated and will be removed.
-To bypass the asset pipeline and preserve this behavior,
-use the `skip_pipeline: true` option.
- (called from _app_views_layouts_application_html_erb__1786439654330897897_27883
-420 at /opt/enju-management/app/views/layouts/application.html.erb:7)
-DEPRECATION WARNING: The asset "defaults.js" is not present in the asset pipelin
-e.Falling back to an asset that may be in the public folder.
-This behavior is deprecated and will be removed.
-To bypass the asset pipeline and preserve this behavior,
-use the `skip_pipeline: true` option.
- (called from _app_views_layouts_application_html_erb__1786439654330897897_27883
-420 at /opt/enju-management/app/views/layouts/application.html.erb:10)
-DEPRECATION WARNING: The asset "format_xml.js" is not present in the asset pipel
-ine.Falling back to an asset that may be in the public folder.
-This behavior is deprecated and will be removed.
-To bypass the asset pipeline and preserve this behavior,
-use the `skip_pipeline: true` option.
- (called from _app_views_layouts_application_html_erb__1786439654330897897_27883
-420 at /opt/enju-management/app/views/layouts/application.html.erb:11)
-  Rendered page/_date_picker.html.erb (0.8ms)
-  Rendered page/_header.html.erb (2.1ms)
-  Rendered page/_menu.html.erb (1.3ms)
-  Rendered page/_footer.html.erb (2.0ms)
-Completed 200 OK in 295ms (Views: 292.9ms | ActiveRecord: 0.0ms)
-
-
-172.18.0.1 - - [25/Nov/2019:09:21:10 UTC] "GET /accounts/sign_in HTTP/1.1" 200 3
-568
-- -> /accounts/sign_in
-Started GET "/stylesheets/all.css" for 172.18.0.1 at 2019-11-25 09:21:11 +0000
-Started GET "/javascripts/defaults.js" for 172.18.0.1 at 2019-11-25 09:21:11 +00
-00
-
-ActionController::RoutingError (No route matches [GET] "/stylesheets/all.css"):
-
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/de
-bug_exceptions.rb:65:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/sh
-ow_exceptions.rb:33:in `call'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:38:in `cal
-l_app'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `blo
-ck in call'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/tagged_logg
-ing.rb:71:in `block in tagged'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/tagged_logg
-ing.rb:28:in `tagged'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/tagged_logg
-ing.rb:71:in `tagged'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `cal
-l'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/re
-mote_ip.rb:81:in `call'
-vendor/bundle/ruby/2.6.0/gems/request_store-1.4.1/lib/request_store/middleware.r
-b:19:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/re
-quest_id.rb:27:in `call'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/method_override.rb:22:in `call
-'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/runtime.rb:22:in `call'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/cache/strat
-egy/local_cache_middleware.rb:29:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/ex
-ecutor.rb:14:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/st
-atic.rb:127:in `call'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/sendfile.rb:111:in `call'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/engine.rb:524:in `call'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/handler/webrick.rb:86:in `serv
-ice'
-/usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0/webrick/httpserver.rb:140:in `ser
-vice'
-/usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0/webrick/httpserver.rb:96:in `run'
-/usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0/webrick/server.rb:307:in `block i
-n start_thread'
-
-ActionController::RoutingError (No route matches [GET] "/javascripts/defaults.js
-"):
-
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/de
-bug_exceptions.rb:65:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/sh
-ow_exceptions.rb:33:in `call'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:38:in `cal
-l_app'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `blo
-ck in call'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/tagged_logg
-ing.rb:71:in `block in tagged'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/tagged_logg
-ing.rb:28:in `tagged'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/tagged_logg
-ing.rb:71:in `tagged'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/rack/logger.rb:26:in `cal
-l'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/re
-mote_ip.rb:81:in `call'
-vendor/bundle/ruby/2.6.0/gems/request_store-1.4.1/lib/request_store/middleware.r
-b:19:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/re
-quest_id.rb:27:in `call'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/method_override.rb:22:in `call
-'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/runtime.rb:22:in `call'
-vendor/bundle/ruby/2.6.0/gems/activesupport-5.2.0/lib/active_support/cache/strat
-egy/local_cache_middleware.rb:29:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/ex
-ecutor.rb:14:in `call'
-vendor/bundle/ruby/2.6.0/gems/actionpack-5.2.0/lib/action_dispatch/middleware/st
-atic.rb:127:in `call'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/sendfile.rb:111:in `call'
-vendor/bundle/ruby/2.6.0/gems/railties-5.2.0/lib/rails/engine.rb:524:in `call'
-vendor/bundle/ruby/2.6.0/gems/rack-2.0.7/lib/rack/handler/webrick.rb:86:in `serv
-ice'
-/usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0/webrick/httpserver.rb:140:in `ser
-vice'
-/usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0/webrick/httpserver.rb:96:in `run'
-/usr/local/rbenv/versions/2.6.5/lib/ruby/2.6.0/webrick/server.rb:307:in `block i
-n start_thread'
-172.18.0.1 - - [25/Nov/2019:09:21:11 UTC] "GET /javascripts/defaults.js HTTP/1.1
-" 404 65565
-http://localhost:3000/accounts/sign_in -> /javascripts/defaults.js
-172.18.0.1 - - [25/Nov/2019:09:21:11 UTC] "GET /stylesheets/all.css HTTP/1.1" 40
-4 65576
-http://localhost:3000/accounts/sign_in -> /stylesheets/all.css
-Started POST "/accounts/sign_in" for 172.18.0.1 at 2019-11-25 09:21:23 +0000
-Processing by Devise::SessionsController#create as HTML
-  Parameters: {"utf8"=>"✓", "authenticity_token"=>"nrHX2K2f2D3DCJHE5BPXDaUkaaiAl
-H3mBsErZBTMqEcdXZNgj4XeeRlDNan0t9hC1Iigouhv23VclkJlz6F5GA==", "user"=>{"email"=>
-"E00000001@sso.ndl.go.jp", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commi
-t"=>"管理者ログイン"}
-Completed 500 Internal Server Error in 5ms (ActiveRecord: 0.0ms)
-
-
-
-NameError (undefined local variable or method `resource_name' for #<Devise::Sess
-ionsController:0x00007fb8402bdc70>):
-
-app/controllers/devise/sessions_controller.rb:41:in `create'
-172.18.0.1 - - [25/Nov/2019:09:21:22 UTC] "POST /accounts/sign_in HTTP/1.1" 500
-83453
-http://localhost:3000/accounts/sign_in -> /accounts/sign_in
-```
-
 - devise修正完了！下記ユーザ群からログインすること
   ```
     - 以下のコマンドで取り込んでください
@@ -398,3 +273,18 @@ default_scope -> { order(updated_at: 'DESC') }
   validates_uniqueness_of :iss_token
 ```
 
+>## Librarian権限のユーザ作成時validation errorが表示される問題
+1. ユーザ作成時にLibrarian権限のユーザを作成しようとしても校正にひっかかる
+2. `apps/models/user.rb`に`set_librarian`メソッドがあるがこれがうまく作用してない？（ダミーのemailとpassword設定する箇所ある）
+![エラー画像](images/image_preview.png)
+
+3. `利用者ID`を重複させて登録した場合`メールアドレスはすでに存在します。`エラーに引っかかる
+
+>## サーチ管理
+http://www2.btc-kamitsure.com/admin/accounts/sign_in
+
+>## 震災管理
+email: ndlsearch-aph1@example.com
+pass: ndl_aph_example
+
+http://eq.btc-kamitsure.com/accounts/sign_in
